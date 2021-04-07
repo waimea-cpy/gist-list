@@ -18,7 +18,7 @@ async function showGists( gistList ) {
         let userAvatarURL = userDetails.avatar_url;
 
         document.getElementById( 'username' ).textContent = username;
-        document.getElementById( 'username' ).href = userURL;
+        document.getElementById( 'userlink' ).href = userURL;
         document.getElementById( 'avatar' ).src = userAvatarURL;
         document.getElementById( 'avatar' ).alt = 'Avatar of ' + username;
 
@@ -40,19 +40,27 @@ async function showGist( gist ) {
     listSection.appendChild( gistDiv );
     gistDiv.classList.add( 'gist' );
 
+    let gistHeader = document.createElement( 'header' );
+    let gistFooter = document.createElement( 'footer' );
     let gistHeading = document.createElement( 'h3' );
-    gistDiv.appendChild( gistHeading );
-
     let gistDesc = document.createElement( 'p' );
-    gistDiv.appendChild( gistDesc );
-
     let gistFiles = document.createElement( 'ul' );
-    gistDiv.appendChild( gistFiles );
-    gistFiles.classList.add( 'files' );
-
     let gistTags = document.createElement( 'ul' );
-    gistDiv.appendChild( gistTags );
+    let gistLangs = document.createElement( 'ul' );
+
+    gistDiv.appendChild( gistHeader );
+    gistDiv.appendChild( gistDesc );
+    gistDiv.appendChild( gistFiles );
+    gistDiv.appendChild( gistFooter );
+
+    gistHeader.appendChild( gistHeading );
+
+    gistFooter.appendChild( gistLangs );
+    gistFooter.appendChild( gistTags );
+
+    gistFiles.classList.add( 'files' );
     gistTags.classList.add( 'tags' );
+    gistLangs.classList.add( 'langs' );
 
     let info = gist.description;
     let title = info;
@@ -75,10 +83,10 @@ async function showGist( gist ) {
 
         // Check for #tags
         while( desc.includes( '#' ) ) {
-            let tagStart = desc.lastIndexOf( '#' );
+            let tagStart = desc.lastIndexOf( '#' ) + 1;
             let tag = desc.slice( tagStart );
             tags.push( tag );
-            desc = desc.substr( 0, tagStart - 1 );
+            desc = desc.substr( 0, tagStart - 2 );
         }
     }
 
@@ -91,11 +99,21 @@ async function showGist( gist ) {
         gistTag.textContent = tag;
     } );
 
+    let langs = [];
+
     Object.keys( files ).forEach( file => {
+        let lang = files[file].language.toLowerCase();
         let gistFile = document.createElement( 'li' );
         gistFiles.appendChild( gistFile );
-        gistFile.classList.add( files[file].language.toLowerCase() );
+        gistFile.classList.add( lang );
         gistFile.textContent = files[file].filename;
+        if( !langs.includes( lang ) ) langs.push( lang );
+    } );
+
+    langs.forEach( lang => {
+        let gistLang = document.createElement( 'li' );
+        gistLangs.appendChild( gistLang );
+        gistLang.textContent = lang;
     } );
 
 }

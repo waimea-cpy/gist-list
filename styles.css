@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap');
+
 * {
     box-sizing: border-box;
 }
@@ -8,8 +10,15 @@ html, body {
 
 body {
     font-family: Helvetica, Arial, sans-serif;
-    background: #333;
-    color: #fff;
+    background: #eee;
+    color: #111;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'News Cycle', sans-serif;
+    font-weight: normal;
+    line-height: 1em;
+    color: #369;
 }
 
 a {
@@ -18,28 +27,31 @@ a {
 
 
 body > header {
-    position: sticky;
+    position: fixed;
     left: 0;
     top: 0;
-    width: 100%;
-    padding: 0.5rem 1rem;
-    background: #333;
+    width: 15rem;
+    height: 100vh;
+    padding: 2rem 1rem;
+    background: #369;
     display: flex;
-    justify-content: space-between;
+    gap: 2rem;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    border-bottom: 1px solid #666;
+    /* border-right: 3px solid #036; */
+    box-shadow: 0 0.5rem 0.5rem #00000040;
 }
 
-body > header h1 {
+body > header :is(a, h1, h2) {
     margin: 0;
-}
-
-main {
-    padding: 1rem;
+    color: #fff;
 }
 
 #userinfo {
+    margin: 2rem 0;
     display: flex;
+    gap: 1rem;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
@@ -49,7 +61,49 @@ main {
     width: 8rem;
     height: 8rem;
     border-radius: 50%;
-    border: 1px solid #666;
+    border: 3px solid #fff;
+}
+
+
+header > nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+header > nav a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: #47a;
+    position: relative;
+    top: 0;
+    transition: top 250ms, box-shadow 250ms;
+}
+
+header > nav a:hover {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: #c70;
+    box-shadow: 0 0.3rem 0.3rem #00000040;
+    top: -0.1rem;
+}
+
+main {
+    margin: 0 0 0 15rem;
+    padding: 1rem;
+}
+
+
+body > footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 15rem;
+    padding: 1rem;
+    text-align: center;
+    color: #ccc;
 }
 
 #gistlist {
@@ -61,15 +115,18 @@ main {
 }
 
 #gistlist .gist {
-    width: 15rem;
-    min-height: 18rem;
+    width: 18rem;
+    min-height: 20rem;
     border: 5px solid #69c;
     border-radius: 0.5rem;
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     background: #fff;
     color: #000;
+    position: relative;
+    top: 0;
+    transition: top 250ms, box-shadow 250ms;
 }
 
 #gistlist .gist h3 {
@@ -78,12 +135,16 @@ main {
 
 #gistlist .gist p {
     flex: 1;
+    margin: 0 0 0.5rem;
+    font-weight: bold;
+    /* line-height: 1.4; */
 }
 
 #gistlist .files {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    /* border-top: 2px solid #69c;   */
+    padding: 1rem 0 0;
+    margin: 1rem 0 0;
 }
 
 #gistlist .files li {
@@ -103,24 +164,66 @@ main {
     background-repeat: no-repeat;
 }
 
-#gistlist .tags {
+#gistlist .gist footer {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 2px solid #69c;
+}
+
+#gistlist .gist .tags,
+#gistlist .gist .langs {
     list-style: none;
     padding: 0;
-    margin: 1rem 0 0;
+    margin: 0;
     display: flex;
     gap: 0.5rem;
     font-size: 0.8rem;
 }
 
-#gistlist .tags li {
-    padding: 0.2rem 0.5rem;
+#gistlist .gist .tags li,
+#gistlist .gist .langs li {
+    padding: 0.15rem 0.5rem 0.2rem;
     border-radius: 1rem;
+    border: 2px solid #69c;
+}
+
+#gistlist .gist .tags li {
     background: #69c;
     color: #fff;
 }
 
-body > footer {
-    padding: 1rem;
-    text-align: center;
+#gistlist .gist .langs li {
+    color: #369;
+}
+
+
+#gistlist .gist:hover {
+    box-shadow: 0 0.5rem 0.5rem #00000040;
+    top: -0.3rem;
+    /* cursor: pointer; */
+    border-color: #f90;
+}
+
+#gistlist .gist:hover h3 {
+    color: #c70;
+}
+
+#gistlist .gist:hover .files,
+#gistlist .gist:hover footer {
+    border-color: #f90;
+}
+
+#gistlist .gist:hover footer li {
+    border-color: #c70;
+}
+
+#gistlist .gist:hover .langs li {
+    color: #c70;
+}
+
+#gistlist .gist:hover .tags li {
+    background: #c70;
 }
 
