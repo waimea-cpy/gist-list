@@ -1,0 +1,46 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gist List</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="gistlist.js"></script>
+</head>
+
+<body onload="">
+
+    <header id="mainheader">
+        <h1>Gist List</h1>
+
+        <nav id="mainnav">
+            <ul>
+                <li><a href="#top">Back to Top</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <header id="userinfo">
+            <h2>Gists for <a id="username" href=""></a></h2>
+            <img id="avatar" src="" alt="">
+        </header>
+
+        <section id="gistlist"></section>
+
+    </main>
+
+    <footer id="mainfooter">
+        Neat!
+    </footer>
+
+    <script>
+        fetchGists();
+    </script>
+
+</body>
+
+</html>
