@@ -1,37 +1,177 @@
+const USER = 'waimea-cpy';
+// const USER = 'stevecopley';
+
+let gistList = [];
+let filters = [];
+
 async function fetchGists() {
+    showUserInfo();
+
     try {
-        const response = await fetch( 'https://api.github.com/users/waimea-cpy/gists' );
-        const gistList = await response.json();
-        showGists( gistList );
+        const response = await fetch( 'https://api.github.com/users/' + USER + '/gists' );
+        gistList = await response.json();
+
+        if( Object.keys( gistList ).length > 0 ) {
+            gistList.forEach( gist => analyseGist( gist ) );
+            gistList.sort( ( a, b ) => ( a.title > b.title ) ? 1 : -1 );
+        }
+
+        showGists();
+        createMenus();
     }
     catch( error ) {
         console.log( "Error: " + error );
     }
 }
 
-async function showGists( gistList ) {
 
-    if( Object.keys( gistList ).length > 0 ) {
-        let userDetails = gistList[0].owner;
-        let username = userDetails.login;
-        let userURL = userDetails.html_url;
-        let userAvatarURL = userDetails.avatar_url;
-
-        document.getElementById( 'username' ).textContent = username;
-        document.getElementById( 'userlink' ).href = userURL;
-        document.getElementById( 'avatar' ).src = userAvatarURL;
-        document.getElementById( 'avatar' ).alt = 'Avatar of ' + username;
-
-        // TODO: need to get this sorting working
-        const array = Object.keys( gistList ).map( key => gistList[key] );
-        array.sort( ( A, B ) => A.description - B.description );
-
-        array.forEach( gist => showGist( gist ) );
+async function filterGists( filter ) {
+    if( filters.includes( filter ) ) {
+        filters = filters.filter( ( e ) => e != filter );
+    } else {
+        filters.push( filter );
     }
-    else {
-        document.getElementById( 'gistlist' ).textContent = 'No gists!';
-    }
+    showGists();
+    updateMenus();
 }
+
+
+async function showAllGists() {
+    filters = [];
+    showGists();
+    updateMenus();
+}
+
+async function showGists() {
+    let listSection = document.getElementById( 'gistlist' );
+    listSection.innerHTML = '';
+    let gistCount = 0;
+
+    gistList.forEach( gist => {
+        let show = true;
+
+        if( filters.length > 0 ) {
+            filters.forEach( filter => {
+                if( !gist.tags.includes( filter ) && !gist.languages.includes( filter ) ) {
+                    show = false;
+                }
+            } );
+        }
+
+        if( show ) {
+            showGist( gist );
+            gistCount++;
+        }
+    } );
+
+    if( gistCount == 0 ) {
+        let heading = document.createElement( 'h2' );
+        heading.textContent = 'No gists';
+        document.getElementById( 'gistlist' ).appendChild( heading );
+    }
+
+}
+
+
+async function createMenus() {
+    let tags = [];
+    let langs = [];
+
+    gistList.forEach( gist => {
+        gist.tags.forEach( tag => {
+            if( !tags.includes( tag ) ) tags.push( tag );
+        } );
+        gist.languages.forEach( lang => {
+            if( !langs.includes( lang ) ) langs.push( lang );
+        } );
+    } );
+
+    tags.sort();
+    langs.sort();
+
+    tags.forEach( tag => {
+        let tagItem = document.createElement( 'li' );
+        document.getElementById( 'tagmenu' ).appendChild( tagItem );
+        tagItem.textContent = tag;
+        tagItem.onclick = function () { filterGists( tag ) };
+    } );
+
+    langs.forEach( lang => {
+        let langItem = document.createElement( 'li' );
+        document.getElementById( 'langmenu' ).appendChild( langItem );
+        langItem.textContent = lang;
+        langItem.onclick = function () { filterGists( lang ) };
+    } );
+}
+
+async function updateMenus() {
+    document.getElementById( 'tagmenu' ).childNodes.forEach( item => {
+        item.className = '';
+        if( filters.includes( item.textContent ) ) {
+            item.classList.add( 'active' );
+        }
+    } );
+
+    document.getElementById( 'langmenu' ).childNodes.forEach( item => {
+        item.className = '';
+        if( filters.includes( item.textContent ) ) {
+            item.classList.add( 'active' );
+        }
+    } );
+}
+
+
+async function showUserInfo() {
+    let userURL = 'https://github.com/' + USER;
+    let userAvatarURL = userURL + '.png';
+
+    document.getElementById( 'username' ).textContent = USER;
+    document.getElementById( 'userlink' ).href = userURL;
+    document.getElementById( 'avatar' ).src = userAvatarURL;
+    document.getElementById( 'avatar' ).alt = 'Avatar of ' + USER;
+}
+
+async function analyseGist( gist ) {
+    let info = gist.description;
+    let title = info;
+    let desc = '';
+    let tags = [];
+    let langs = [];
+
+    // Check if using CodeExpander format: |-|{META DATA}
+    if( info.includes( '|-|' ) ) {
+        let metaStart = info.indexOf( '|-|' );
+        info = info.substr( 0, metaStart - 2 );
+    }
+
+    // Check if using CodeExpander title format: [TITLE] DESC #TAG #TAG
+    if( info.includes( '[' ) && info.includes( ']' ) ) {
+        let titleStart = info.indexOf( '[' ) + 1;
+        let titleEnd = info.indexOf( ']' );
+        title = info.substr( titleStart, titleEnd - titleStart );
+        desc = info.slice( titleEnd + 2 );
+
+        // Check for #tags
+        while( desc.includes( '#' ) ) {
+            let tagStart = desc.lastIndexOf( '#' );
+            let tag = desc.slice( tagStart );
+            tag = tag.trim();
+            tags.push( tag );
+            desc = desc.substr( 0, tagStart - 1 );
+        }
+    }
+
+    Object.keys( gist.files ).forEach( file => {
+        let lang = gist.files[file].language.toLowerCase();
+        if( !langs.includes( lang ) ) langs.push( lang );
+    } );
+
+    gist.title = title;
+    gist.description = desc;
+    gist.tags = tags;
+    gist.languages = langs;
+}
+
 
 async function showGist( gist ) {
     let listSection = document.getElementById( 'gistlist' );
@@ -62,60 +202,30 @@ async function showGist( gist ) {
     gistTags.classList.add( 'tags' );
     gistLangs.classList.add( 'langs' );
 
-    let info = gist.description;
-    let title = info;
-    let desc = '';
-    let tags = [];
-    let files = gist.files;
+    gistHeading.textContent = gist.title;
+    gistDesc.textContent = gist.description;
 
-    // Check if using CodeExpander format: |-|{META DATA}
-    if( info.includes( '|-|' ) ) {
-        let metaStart = info.indexOf( '|-|' );
-        info = info.substr( 0, metaStart - 2 );
-    }
-
-    // Check if using CodeExpander title format: [TITLE] DESC #TAG #TAG
-    if( info.includes( '[' ) && info.includes( ']' ) ) {
-        let titleStart = info.indexOf( '[' ) + 1;
-        let titleEnd = info.indexOf( ']' );
-        title = info.substr( titleStart, titleEnd - titleStart );
-        desc = info.slice( titleEnd + 1 );
-
-        // Check for #tags
-        while( desc.includes( '#' ) ) {
-            let tagStart = desc.lastIndexOf( '#' ) + 1;
-            let tag = desc.slice( tagStart );
-            tags.push( tag );
-            desc = desc.substr( 0, tagStart - 2 );
-        }
-    }
-
-    gistHeading.textContent = title;
-    gistDesc.textContent = desc;
-
-    tags.forEach( tag => {
+    gist.tags.forEach( tag => {
         let gistTag = document.createElement( 'li' );
         gistTags.appendChild( gistTag );
         gistTag.textContent = tag;
+        gistTag.onclick = function () { filterGists( tag ) };
     } );
 
-    let langs = [];
-
-    Object.keys( files ).forEach( file => {
-        let lang = files[file].language.toLowerCase();
-        let gistFile = document.createElement( 'li' );
-        gistFiles.appendChild( gistFile );
-        gistFile.classList.add( lang );
-        gistFile.textContent = files[file].filename;
-        if( !langs.includes( lang ) ) langs.push( lang );
-    } );
-
-    langs.forEach( lang => {
+    gist.languages.forEach( lang => {
         let gistLang = document.createElement( 'li' );
         gistLangs.appendChild( gistLang );
         gistLang.textContent = lang;
+        gistLang.onclick = function () { filterGists( lang ) };
     } );
 
+    Object.keys( gist.files ).forEach( file => {
+        let lang = gist.files[file].language.toLowerCase();
+        let gistFile = document.createElement( 'li' );
+        gistFiles.appendChild( gistFile );
+        gistFile.classList.add( lang );
+        gistFile.textContent = gist.files[file].filename;
+    } );
 }
 
 
