@@ -67,9 +67,15 @@ async function showGists() {
     if( gistCount == 0 ) {
         let heading = document.createElement( 'h2' );
         heading.textContent = 'No gists';
+        if( filters.length > 0 ) {
+            heading.textContent = 'No gists match the selected tags / languages';
+        }
+        else {
+            heading.textContent = 'No gists for ' + USER;
+        }
+
         document.getElementById( 'gistlist' ).appendChild( heading );
     }
-
 }
 
 
@@ -177,6 +183,8 @@ async function analyseGist( gist ) {
 
 
 async function showGist( gist ) {
+    // console.log( gist );
+
     let listSection = document.getElementById( 'gistlist' );
 
     let gistDiv = document.createElement( 'div' );
@@ -186,6 +194,7 @@ async function showGist( gist ) {
     let gistHeader = document.createElement( 'header' );
     let gistFooter = document.createElement( 'footer' );
     let gistHeading = document.createElement( 'h3' );
+    let gistLink = document.createElement( 'a' );
     let gistDesc = document.createElement( 'p' );
     let gistFiles = document.createElement( 'ul' );
     let gistTags = document.createElement( 'ul' );
@@ -197,6 +206,7 @@ async function showGist( gist ) {
     gistDiv.appendChild( gistFooter );
 
     gistHeader.appendChild( gistHeading );
+    gistHeading.appendChild( gistLink );
 
     gistFooter.appendChild( gistLangs );
     gistFooter.appendChild( gistTags );
@@ -205,7 +215,9 @@ async function showGist( gist ) {
     gistTags.classList.add( 'tags' );
     gistLangs.classList.add( 'langs' );
 
-    gistHeading.textContent = gist.title;
+    gistLink.textContent = gist.title;
+    gistLink.href = gist.html_url;
+    gistLink.target = "_blank";
     gistDesc.textContent = gist.description;
 
     gist.tags.forEach( tag => {
@@ -226,7 +238,7 @@ async function showGist( gist ) {
 
     Object.keys( gist.files ).forEach( index => {
         let file = gist.files[index];
-        console.log( file );
+        // console.log( file );
         let lang = file.language.toLowerCase();
         let gistFile = document.createElement( 'li' );
         gistFiles.appendChild( gistFile );
@@ -237,15 +249,17 @@ async function showGist( gist ) {
 }
 
 async function showFileViewer( file ) {
+    let code = document.getElementById( 'gistfilecode' );
+    code.innerHTML = '';
     document.getElementById( 'gistfile' ).classList.add( 'visible' );
 
     try {
         const response = await fetch( file.raw_url );
-        console.log( response );
+        let gist = await response.text();
+        code.textContent = gist;
+        code.className = file.language.toLowerCase();
 
-        // TODO: get the code for the gist file and display
-        let gist = await response;
-        document.getElementById( 'gistfilecode' ).textContent = '??????';
+        hljs.highlightAll();
     }
     catch( error ) {
         console.log( "Error: " + error );

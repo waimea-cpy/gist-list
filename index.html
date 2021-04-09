@@ -5,7 +5,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Gist List</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.7.2/build/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.7.2/build/highlight.min.js"></script>
+
     <link rel="stylesheet" href="styles.css">
     <script src="gistlist.js"></script>
 </head>
@@ -41,13 +46,15 @@
 
         <section id="gistfile">
             <div id="gistfileclose" onclick="closeFileViewer();">&times;</div>
-            <div id="gistfilecode"></div>
+            <div id="gistfilecontainer">
+                <pre><code id="gistfilecode"></code></pre>
+            </div>
         </section>
 
     </main>
 
     <footer id="mainfooter">
-        Neat!
+        <a href="https://github.com/stevecopley/gist-list">Steve Copley</a>
     </footer>
 
     <script>
