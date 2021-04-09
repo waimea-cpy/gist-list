@@ -133,7 +133,7 @@ async function showUserInfo() {
 
 async function analyseGist( gist ) {
     let info = gist.description;
-    let title = info;
+    let title = '';
     let desc = '';
     let tags = [];
     let langs = [];
@@ -144,21 +144,24 @@ async function analyseGist( gist ) {
         info = info.substr( 0, metaStart - 2 );
     }
 
+    // Check for #tags
+    while( info.includes( '#' ) ) {
+        let tagStart = info.lastIndexOf( '#' );
+        let tag = info.slice( tagStart );
+        tag = tag.trim();
+        tags.push( tag );
+        info = info.substr( 0, tagStart - 1 );
+    }
+
     // Check if using CodeExpander title format: [TITLE] DESC #TAG #TAG
     if( info.includes( '[' ) && info.includes( ']' ) ) {
         let titleStart = info.indexOf( '[' ) + 1;
         let titleEnd = info.indexOf( ']' );
         title = info.substr( titleStart, titleEnd - titleStart );
         desc = info.slice( titleEnd + 2 );
-
-        // Check for #tags
-        while( desc.includes( '#' ) ) {
-            let tagStart = desc.lastIndexOf( '#' );
-            let tag = desc.slice( tagStart );
-            tag = tag.trim();
-            tags.push( tag );
-            desc = desc.substr( 0, tagStart - 1 );
-        }
+    }
+    else {
+        title = info;
     }
 
     Object.keys( gist.files ).forEach( file => {
@@ -210,6 +213,7 @@ async function showGist( gist ) {
         gistTags.appendChild( gistTag );
         gistTag.textContent = tag;
         gistTag.onclick = function () { filterGists( tag ) };
+        if( filters.includes( tag ) ) gistTag.classList.add( 'filter' );
     } );
 
     gist.languages.forEach( lang => {
@@ -217,15 +221,38 @@ async function showGist( gist ) {
         gistLangs.appendChild( gistLang );
         gistLang.textContent = lang;
         gistLang.onclick = function () { filterGists( lang ) };
+        if( filters.includes( lang ) ) gistLang.classList.add( 'filter' );
     } );
 
-    Object.keys( gist.files ).forEach( file => {
-        let lang = gist.files[file].language.toLowerCase();
+    Object.keys( gist.files ).forEach( index => {
+        let file = gist.files[index];
+        console.log( file );
+        let lang = file.language.toLowerCase();
         let gistFile = document.createElement( 'li' );
         gistFiles.appendChild( gistFile );
         gistFile.classList.add( lang );
-        gistFile.textContent = gist.files[file].filename;
+        gistFile.textContent = file.filename;
+        gistFile.onclick = function () { showFileViewer( file ) };
     } );
 }
 
+async function showFileViewer( file ) {
+    document.getElementById( 'gistfile' ).classList.add( 'visible' );
 
+    try {
+        const response = await fetch( file.raw_url );
+        console.log( response );
+
+        // TODO: get the code for the gist file and display
+        let gist = await response;
+        document.getElementById( 'gistfilecode' ).textContent = '??????';
+    }
+    catch( error ) {
+        console.log( "Error: " + error );
+    }
+}
+
+
+function closeFileViewer() {
+    document.getElementById( 'gistfile' ).classList.remove( 'visible' );
+}
