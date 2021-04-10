@@ -319,12 +319,26 @@ body > footer {
     display: block;
 }
 
-#gistfileclose {
+#gistfile header {
     position: absolute;
     top: 1rem;
     right: 1.5rem;
-    font-size: 2rem;
     color: var(--text-inv-low);
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+#gistfile footer {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.5rem;
+    color: var(--text-inv-low);
+    font-size: 0.8rem;
+}
+
+#gistfileclose {
+    font-size: 2rem;
     cursor: pointer;
 }
 

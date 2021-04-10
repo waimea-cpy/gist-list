@@ -45,16 +45,22 @@
         <section id="gistlist"></section>
 
         <section id="gistfile">
-            <div id="gistfileclose" onclick="closeFileViewer();">&times;</div>
+            <header>
+                <span id="gistfilename">FILENAME</span>
+                <span id="gistfileclose" onclick="closeFileViewer();">&times;</span>
+            </header>
+
             <div id="gistfilecontainer">
-                <pre><code id="gistfilecode"></code></pre>
+                <pre><code id="gistfilecode">CODE</code></pre>
             </div>
+
+            <footer id="gistfileinfo">INFO</footer>
         </section>
 
     </main>
 
     <footer id="mainfooter">
-        <a href="https://github.com/stevecopley/gist-list">Steve Copley</a>
+        <a href="https://github.com/stevecopley/gist-list">by stevecopley</a>
     </footer>
 
     <script>
